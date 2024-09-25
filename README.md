@@ -310,3 +310,27 @@ Wait a minute, there are two new lines of code! Well, I lied and I've put anothe
 
 Jokes aside, we used the command `echo` to output the string `"removing objects"` and `"removing executable file"` in our `clean` and `fclean` rules. This is a simple trick, but it greatly enhances your ability to differentiate what is going on in the terminal:
 
+```shell
+
+fdessoy@fdessoy-420  ~/projects/tutorial   main  make
+c++ -Wall -Wextra -Werror -pedantic -std=c++98 main.cpp -o str
+fdessoy@fdessoy-420  ~/projects/tutorial   main ±  make fclean
+removing objects
+removing executable file
+fdessoy@fdessoy-420  ~/projects/tutorial   main ±  make
+c++ -Wall -Wextra -Werror -pedantic -std=c++98 main.cpp -o str
+fdessoy@fdessoy-420  ~/projects/tutorial   main ±  make clean
+removing objects
+fdessoy@fdessoy-420  ~/projects/tutorial   main ±  ls -la
+total 44
+drwxrwxr-x 3 fdessoy fdessoy 4096 Sep 25 12:51 .
+drwxrwxr-x 6 fdessoy fdessoy 4096 Sep 25 12:07 ..
+drwxrwxr-x 8 fdessoy fdessoy 4096 Sep 25 12:50 .git
+-rw-rw-r-- 1 fdessoy fdessoy 103 Sep 25 12:07 main.cpp
+-rw-rw-r-- 1 fdessoy fdessoy 416 Sep 25 12:50 Makefile
+-rw-rw-r-- 1 fdessoy fdessoy 7293 Sep 25 12:07 README.md
+-rwxrwxr-x 1 fdessoy fdessoy 16264 Sep 25 12:51 str
+fdessoy@fdessoy-420  ~/projects/tutorial   main ± 
+```
+
+As you can see, with those simple lines we managed to get some helpful messages to the terminal. Also, it looks cool, right?
