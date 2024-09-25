@@ -14,9 +14,11 @@ $(NAME): $(OBJSS)
 
 clean:
 	@rm -f *.o
+	@echo "removing object files"
 
 fclean: clean
 	@rm -f $(NAME)
+	@echo "removing executable file"
 
 re: fclean all
 
