@@ -1,14 +1,3 @@
-## Symbols
-
-In the wild, one might come across the following symbols: @, %, and < when it comes to makefiles. Below there is a little table with some symbols that one would find.
-
-| Symbol | Meaning                               | Examples                            |
-| ------ | ------------------------------------- | ----------------------------------- |
-| `%`    | Wildcard/placeholder in pattern rules | `$(OBJDIR)/%.o: $(SRCDIR)/%.cpp`    |
-| `$<`   | First prerequisite (dependency)       | `c++ -c $<` → `c++ -c src/main.cpp` |
-| `$@`   | The target of the rule                | `-o $@` → `-o obj/main.o`           |
-| `$`    | Variables reference                   | `$(OBJDIR)`, `$(SRCDIR)` `$(NAME)`  |
-
 ## **Baby's first Makefile**
 
 ### 1. General structure:
@@ -87,6 +76,67 @@ Also, you might have wondered where you shove the rest of the files. Fret not, y
 
 ### 4. Stop objectifying me
 
+In this step we are going to cut directly to our Makefile. I have my reasons:
+
+```makefile
+NAME = str 
+COMPILER = c++ 
+COMPILERFLAGS = -Wall -Wextra -Werror -pedantic -std=c++98 
+SRCS = main.cpp 
+OBJS = $(SRCS:.cpp=.o)
+
+all: $(NAME) 
+	$(NAME): $(OBJS) $(COMPILER) $(COMPILERFLAGS) $(OBJS) -o $(NAME) 
+	
+%.o: %.cpp
+	$(COMPILER) $(COMPILERFLAGS) -c $< -o $@
+```
+
+I know you're thinking "what in the seven hells is this?!". Do not worry, I will be going through each new part thoroughly and talk about objects also.
+
+Lets go through the boring theoretical part first: objects. What are object files?
+
+- **Object files** are the result of the **compilation** step when you compile your C/C++ code.
+- They have a `.o` extension on Unix-like systems (Linux, mac OS) and `.obj` on Windows.
+- An object file contains the **machine code** translated from your source code, as well as other necessary information such as symbol definitions (functions and variables) and references to other symbols that the file depends on.
+
+In other words, it's more machine-readable stuff for our little 'puter friends! With that said, the next questions would be "ok, I still have no idea what those new lines you wrote mean", and, again, don't worry.
+
+```makefile
+OBJS = $(SRCS:.cpp=.o)
+```
+
+The previous line is using _substitution reference_, very fancy. In other words, it makes a copy of the files with the ending `.cpp` to object files with `.o` ending. That's mostly it.
+
+The catch here is that we used our `SRCS`, so keep that in mind. This means that everything that was referenced in our variable `SRCS` with `.cpp` files will be turned into `.o` files.
+
+```makefile
+%.o: %.cpp
+	$(COMPILER) $(COMPILERFLAGS) -c $< -o $@
+```
+
+Now, this one is using what we call _pattern rule_, another very fancy phrase. However, unlike the past line, there is a bit more to it:
+
+- **`%.o`**: This specifies the target pattern. The `%` acts as a wildcard that matches any stem (file name without an extension). So, `%.o` means "any `.o` file."
+
+- **`%.cpp`**: This specifies the prerequisite pattern. It matches any `.cpp` file that corresponds to the object file being created.
+
+So the `%` operand works in the same way as the `*` operand that we use in terminal to fetch all corresponding cases. For more information on these operands, there is a table at the end of this README. Going further into the command under the rule:
+
+```makefile
+	$(COMPILER) $(COMPILERFLAGS) -c $< -o $@
+```
+
+- **`$(COMPILER)`**: This is the variable holding the name of the compiler, which is defined earlier in your Makefile (e.g., `c++`).
+- **`$(COMPILERFLAGS)`**: This variable holds the flags you want to pass to the compiler (like `-Wall`, `-Wextra`, etc.).
+- **`-c`**: This option tells the compiler to compile the source file into an object file without linking.
+- **`$<`**: This is an automatic variable in Make that refers to the first prerequisite of the rule. In this case, it would be the corresponding `.cpp` file (e.g., `main.cpp` for `main.o`).
+- **`-o $@`**: This option specifies the output file name:
+    - **`$@`**: This is another automatic variable that refers to the target of the rule. In this case, it would be the `.o` file being created (e.g., `main.o`).
+
+**TL;DR for this section**
+- **`OBJS = $(SRCS:.cpp=.o)`** generates a list of object files based on the source files.
+- The pattern rule **`%.o: %.cpp`** specifies how to build an object file from a source file, with the command using automatic variables to streamline the process.
 
 ### 5. GO CLEAN YOUR ~~ROOM~~ DIRECTORY!
 
@@ -99,6 +149,18 @@ No self-respecting Makefile would be complete without the `clean`,`fclean` and `
 OK, and how do we write them in our Makefile? Something like this:
 
 ```makefile
+NAME = str 
+COMPILER = c++ 
+COMPILERFLAGS = -Wall -Wextra -Werror -pedantic -std=c++98 
+SRCS = main.cpp 
+OBJS = $(SRCS:.cpp=.o)
+
+all: $(NAME) 
+	$(NAME): $(OBJS) $(COMPILER) $(COMPILERFLAGS) $(OBJS) -o $(NAME)
+	
+%.o: %.cpp
+	$(COMPILER) $(COMPILERFLAGS) -c $< -o $@
+
 clean:
 	@rm -f $(SRCDIR)/*.o
 
@@ -198,3 +260,54 @@ If this was a "mucho texto"/TL;DR moment for you, here's the breakdown:
 5. verified that everything was cleaned running `ls -la`;
 6. ran `make fclean` to remove the executable `str`;
 7. ran `ls -la` one more time to check if our directory was empty.
+
+### Extra: Symbols
+
+In the wild, one might come across the following symbols: @, %, and < when it comes to Makefile. Below there is a little table with some symbols that one would find.
+
+| Symbol | Meaning                               | Examples                            |
+| ------ | ------------------------------------- | ----------------------------------- |
+| `%`    | Wildcard/placeholder in pattern rules | `$(OBJDIR)/%.o: $(SRCDIR)/%.cpp`    |
+| `$<`   | First prerequisite (dependency)       | `c++ -c $<` → `c++ -c src/main.cpp` |
+| `$@`   | The target of the rule                | `-o $@` → `-o obj/main.o`           |
+| `$`    | Variables reference                   | `$(OBJDIR)`, `$(SRCDIR)` `$(NAME)`  |
+
+### Extra: helpful output
+
+When it comes to terminal, messages will be the essence to understand what the seven hells is going on. If your stuff never outputs anything saying if it either failed, or worked, it can quickly become confusing. Same thing applies to our Makefile! So how about we put some messages so we know what is going on?
+
+Below we are going to edit one section and the rest will be on you to take it further in your Makefile. We are going to set a message for the `make clean` command that will be outputted to the terminal/console:
+
+```makefile
+```makefile
+NAME = str
+COMPILER = c++
+COMPILERFLAGS = -Wall -Wextra -Werror -pedantic -std=c++98
+SRCS = main.cpp
+OBJS = $(SRCS: .cpp=.o)
+
+all: $(NAME)
+
+$(NAME): $(OBJSS)
+	$(COMPILER) $(COMPILERFLAGS) $(OBJS) -o $(NAME)
+
+%.o: %.cpp
+	$(COMPILER) $(COMPILERFLAGS) -c $< -o $@
+
+clean:
+	@rm -f *.o
+	@echo "removing objects" <-- we added this line
+
+fclean: clean
+	@rm -f $(NAME)
+	@echo "removing executable file" <-- we added this line
+
+re: fclean all
+
+.PHONY: all clean fclean re
+```
+
+Wait a minute, there are two new lines of code! Well, I lied and I've put another message for the `make fclean`. Life is full of disappointments and I just delivered another one to you by not sticking to my word. Get used to it.
+
+Jokes aside, we used the command `echo` to output the string `"removing objects"` and `"removing executable file"` in our `clean` and `fclean` rules. This is a simple trick, but it greatly enhances your ability to differentiate what is going on in the terminal:
+
