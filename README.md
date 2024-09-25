@@ -279,7 +279,6 @@ When it comes to terminal, messages will be the essence to understand what the s
 Below we are going to edit one section and the rest will be on you to take it further in your Makefile. We are going to set a message for the `make clean` command that will be outputted to the terminal/console:
 
 ```makefile
-```makefile
 NAME = str
 COMPILER = c++
 COMPILERFLAGS = -Wall -Wextra -Werror -pedantic -std=c++98
