@@ -333,4 +333,4 @@ drwxrwxr-x 8 fdessoy fdessoy 4096 Sep 25 12:50 .git
 fdessoy@fdessoy-420  ~/projects/tutorial   main ± 
 ```
 
-As you can see, with those simple lines we managed to get some helpful messages to the terminal. Also, it looks cool, right?
+As you can see, with those simple lines we managed to get some helpful messages to the terminal. Also, it looks cool, right? Don't forget to star this repo and share with other people that might need this!
